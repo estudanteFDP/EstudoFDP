@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Estudante FDP | Dashboard de Estudos</title>
+<style>
+:root{
+  --bg:#07111f; --bg2:#0b1728; --card:#0f1d31; --card2:#12233b; --line:#20324c; --text:#e8eef9; --muted:#9aa9be;
+  --brand:#5ea2ff; --brand2:#7ec8ff; --good:#22c55e; --warn:#f59e0b; --bad:#ef4444; --chip:#16263d; --shadow:0 14px 40px rgba(0,0,0,.28);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:linear-gradient(180deg,#06101c,#0b1728 35%,#091320);color:var(--text);font:14px/1.45 Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+a{color:inherit}
+.app{display:grid;grid-template-columns:260px minmax(0,1fr);min-height:100vh}
+.sidebar{position:sticky;top:0;height:100vh;background:rgba(7,17,31,.9);backdrop-filter:blur(10px);border-right:1px solid var(--line);padding:22px 16px 18px;display:flex;flex-direction:column;gap:16px}
+.brand{padding:8px 10px 14px;border-bottom:1px solid var(--line)}
+.brand .kicker{display:inline-flex;align-items:center;gap:8px;font-size:12px;color:#b6cae9;text-transform:uppercase;letter-spacing:.12em;font-weight:800}
+.brand h1{margin:10px 0 4px;font-size:26px;line-height:1.05}
+.brand p{margin:0;color:var(--muted)}
+.nav{display:grid;gap:7px}
+.nav a{display:flex;align-items:center;gap:10px;text-decoration:none;padding:12px 13px;border-radius:12px;color:#d9e5f8;border:1px solid transparent}
+.nav a:hover,.nav a.active{background:linear-gradient(180deg,#102340,#122947);border-color:#27476c;box-shadow:inset 0 1px 0 rgba(255,255,255,.03)}
+.side-note{margin-top:auto;font-size:12px;color:#89a0bf;padding:12px;background:#0c1b2e;border:1px solid var(--line);border-radius:14px}
+.main{padding:24px clamp(14px,2vw,28px) 32px;min-width:0}
+.mobile-top{display:none;position:sticky;top:0;z-index:30;background:rgba(7,17,31,.9);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding:10px 14px;margin:-24px -14px 16px}
+.mobile-brand{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.mobile-brand strong{font-size:18px}
+.mobile-nav{display:flex;gap:8px;overflow:auto;padding-top:10px}
+.mobile-nav a{text-decoration:none;white-space:nowrap;background:#0d1d31;border:1px solid var(--line);color:#dbe8fb;padding:8px 10px;border-radius:999px;font-size:12px}
+.header{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:20px}
+.header h2{font-size:30px;line-height:1.05;margin:0 0 7px}
+.header p{margin:0;color:var(--muted);max-width:850px}
+.date-badge{background:linear-gradient(180deg,#133055,#102746);border:1px solid #2d4f78;color:#dcebff;padding:11px 14px;border-radius:14px;font-weight:700;white-space:nowrap}
+.panel{background:linear-gradient(180deg,rgba(18,35,59,.98),rgba(12,28,46,.98));border:1px solid var(--line);border-radius:20px;padding:18px;box-shadow:var(--shadow);margin-bottom:18px;min-width:0}
+.panel h3{margin:0 0 6px;font-size:19px}
+.panel .sub{color:var(--muted);margin:0 0 14px}
+.controls{display:flex;flex-wrap:wrap;gap:12px;align-items:end}
+.control{display:flex;flex-direction:column;gap:7px;min-width:160px;flex:1}
+.control.small{max-width:160px}
+label{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#9eb1c9}
+input,select,button,textarea{font:inherit}
+input,select{width:100%;padding:12px 12px;border-radius:12px;border:1px solid #29405d;background:#0a1626;color:var(--text);outline:none}
+input[readonly]{color:#bfd2ee;background:#0c192b}
+button{cursor:pointer}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+.btn{border:1px solid #295288;background:linear-gradient(180deg,#2e73de,#205cc0);color:white;border-radius:12px;padding:12px 15px;font-weight:700;box-shadow:0 8px 24px rgba(32,92,192,.25)}
+.btn:hover{filter:brightness(1.05)}
+.btn.alt{background:#10223a;border-color:#29405d;color:#dce9fc;box-shadow:none}
+.btn.bad{background:#32131b;border-color:#5b2230;color:#ffd3da}
+.grid-cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-top:16px}
+.metric{background:linear-gradient(180deg,#11233a,#0d1a2d);border:1px solid var(--line);border-radius:18px;padding:18px}
+.metric .label{font-size:11px;color:#9fb0c8;text-transform:uppercase;letter-spacing:.09em;font-weight:800}
+.metric b{display:block;font-size:30px;margin:7px 0 4px;line-height:1.05}
+.metric small{color:var(--muted)}
+.metric.primary{border-color:#2c5483;background:linear-gradient(180deg,#132d4d,#10233b)}
+.row{display:grid;grid-template-columns:1.2fr 1fr;gap:16px}
+.period-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.period-card{background:#0d1a2d;border:1px solid var(--line);padding:16px;border-radius:16px}
+.period-card span{display:block;color:var(--muted);font-size:12px}
+.period-card b{display:block;font-size:28px;margin:7px 0 4px}
+.table-wrap{overflow:auto}
+table{width:100%;border-collapse:collapse;min-width:700px}
+th,td{padding:12px 10px;border-bottom:1px solid rgba(255,255,255,.07);text-align:left;vertical-align:middle}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#a7b8cf;background:#0c192b;position:sticky;top:0;z-index:1}
+tr:hover td{background:rgba(255,255,255,.015)}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;font-size:11px;font-weight:800;white-space:nowrap}
+.badge.good{background:#123321;color:#98f0b7}
+.badge.warn{background:#3a2d10;color:#ffd88a}
+.badge.bad{background:#3d131a;color:#ffb0bb}
+.badge.muted{background:#1a273a;color:#b9c8dd}
+.low-score td{background:rgba(239,68,68,.055)}
+.low-score:hover td{background:rgba(239,68,68,.09)}
+.score-flag{font-size:11px;font-weight:800;margin-left:6px;color:#ffb0bb}
+.chart{display:flex;align-items:end;gap:8px;height:210px;padding:8px 0 4px;overflow:auto}
+.barset{display:flex;flex-direction:column;align-items:center;justify-content:end;gap:7px;min-width:34px;height:100%}
+.bar{width:26px;border-radius:8px 8px 0 0;background:linear-gradient(180deg,#7ec8ff,#2e73de);min-height:3px;box-shadow:0 10px 25px rgba(46,115,222,.28)}
+.barset small{font-size:10px;color:var(--muted)}
+.barset b{font-size:10px;color:#cfe0f9}
+.summary-empty{padding:24px;text-align:center;color:var(--muted)}
+.notice{background:#0b1d32;border:1px solid #27476c;padding:14px;border-radius:14px;color:#bdd5f7}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.pill-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.pill-tabs button{border:1px solid var(--line);background:#0b1829;color:#d8e6fa;padding:10px 13px;border-radius:999px;font-weight:700}
+.pill-tabs button.active{background:linear-gradient(180deg,#17355a,#122947);border-color:#355e8d}
+.tabpane{display:none}
+.tabpane.active{display:block}
+.compare-list{display:grid;gap:12px}
+.compare-item{border:1px solid var(--line);background:#0c192b;border-radius:16px;padding:14px}
+.compare-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}
+.track{height:11px;background:#09121f;border-radius:999px;overflow:hidden;border:1px solid #1e314a}
+.fill{height:100%;background:linear-gradient(90deg,#7ec8ff,#2e73de)}
+.fill.time{background:linear-gradient(90deg,#7dd3fc,#22c55e)}
+.fill.bad{background:linear-gradient(90deg,#f59e0b,#ef4444)}
+.meta-inline{display:flex;flex-wrap:wrap;gap:12px;color:#c8d7eb;font-size:12px;margin-top:8px}
+.manager-list{display:grid;gap:10px}
+.subject-item{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;background:#0c192b;border:1px solid var(--line);border-radius:14px}
+.subject-actions{display:flex;gap:8px;flex-wrap:wrap}
+.hint{color:var(--muted);font-size:12px}
+.form-grid{display:grid;grid-template-columns:1.1fr 1.2fr .7fr 1.25fr .65fr .65fr auto;gap:10px;align-items:end}
+.two-col{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end}
+.footer-note{color:var(--muted);font-size:12px;margin-top:10px}
+.anchor{scroll-margin-top:90px}
+@media (max-width: 1180px){
+  .grid-cards{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .row,.split{grid-template-columns:1fr}
+  .period-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .form-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+@media (max-width: 900px){
+  .app{grid-template-columns:1fr}
+  .sidebar{display:none}
+  .mobile-top{display:block}
+  .main{padding-top:10px}
+}
+@media (max-width: 720px){
+  .header{flex-direction:column}
+  .date-badge{width:100%}
+  .form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .two-col{grid-template-columns:1fr}
+  .subject-item{flex-direction:column;align-items:flex-start}
+}
+@media (max-width: 520px){
+  .main{padding:10px 10px 22px}
+  .panel{padding:14px;border-radius:16px}
+  .header h2{font-size:24px}
+  .grid-cards,.period-grid{grid-template-columns:1fr 1fr}
+  .metric b{font-size:24px}
+  .controls{gap:10px}
+  .control{min-width:100%}
+  .form-grid{grid-template-columns:1fr}
+  table{min-width:640px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="kicker">◈ Estudante FDP</div>
+      <h1>Dashboard de estudos</h1>
+      <p>Visão prática do cronograma, desempenho e consistência.</p>
+    </div>
+    <nav class="nav">
+      <a href="#resumo" class="active">▣ Resumo</a>
+      <a href="#disciplinas">◫ Disciplinas</a>
+      <a href="#comparativo">▤ Comparativo</a>
+      <a href="#gerenciar">⚙ Matérias</a>
+      <a href="#futuro">▦ Projeção</a>
+      <a href="#lancamentos">✚ Lançamentos</a>
+    </nav>
+    <div class="side-note">Tema escuro, otimizado para desktop e mobile. Os novos registros e alterações de matérias são salvos localmente no navegador e podem ser exportados em CSV.</div>
+  </aside>
+
+  <main class="main">
+    <div class="mobile-top">
+      <div class="mobile-brand"><strong>Estudante FDP</strong><span id="clockMobile" class="hint"></span></div>
+      <div class="mobile-nav">
+        <a href="#resumo">Resumo</a><a href="#disciplinas">Disciplinas</a><a href="#comparativo">Comparativo</a><a href="#gerenciar">Matérias</a><a href="#futuro">Projeção</a><a href="#lancamentos">Lançamentos</a>
+      </div>
+    </div>
+
+    <section class="header anchor" id="resumo">
+      <div>
+        <h2>Estudante FDP</h2>
+        <p>Controle visual das matérias estudadas, volume de questões, tempo de estudo e alertas de desempenho. As matérias com <strong>aproveitamento abaixo de 70%</strong> ficam destacadas automaticamente.</p>
+      </div>
+      <div class="date-badge" id="clock"></div>
+    </section>
+
+    <section class="panel">
+      <div class="controls">
+        <div class="control small"><label>Filtrar por período</label><select id="period"><option value="day">Dia</option><option value="week" selected>Semana</option><option value="month">Mês</option><option value="year">Ano</option></select></div>
+        <div class="control small"><label>Data de referência</label><input type="date" id="refdate"></div>
+        <div class="control"><label>Disciplina</label><select id="subjectFilter"><option value="">Todas as disciplinas</option></select></div>
+        <div class="control"><label>Intervalo calculado</label><input id="interval" readonly></div>
+        <div class="btns"><button class="btn alt" onclick="resetFilters()">Limpar filtros</button><button class="btn" onclick="exportCsv()">Exportar registros</button></div>
+      </div>
+
+      <div class="grid-cards">
+        <div class="metric primary"><div class="label">Questões resolvidas</div><b id="kQuestions">0</b><small>No período selecionado</small></div>
+        <div class="metric"><div class="label">Acertos</div><b id="kCorrect">0</b><small id="kErrors">0 erros</small></div>
+        <div class="metric"><div class="label">Taxa de acerto</div><b id="kAccuracy">—</b><small>Aproveitamento geral</small></div>
+        <div class="metric"><div class="label">Sessões registradas</div><b id="kSessions">0</b><small id="kSubjectCount">0 disciplinas no período</small></div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div style="display:flex;justify-content:space-between;gap:16px;align-items:center;flex-wrap:wrap">
+        <div><h3>Tempo de estudo no período</h3><p class="sub">Tempo acumulado em horas e minutos, respeitando os filtros aplicados.</p></div>
+        <strong id="kStudyTime" style="font-size:30px;color:#7ec8ff">0h 00min</strong>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h3>Questões por dia, semana, mês e ano</h3>
+      <p class="sub">Cartões rápidos para acompanhar o volume de questões no período civil correspondente à data de referência.</p>
+      <div class="period-grid" id="periodCards"></div>
+    </section>
+
+    <div class="row">
+      <section class="panel">
+        <h3>Evolução de questões nos últimos 14 dias</h3>
+        <p class="sub">O gráfico acompanha as questões registradas por data e respeita o filtro de disciplina.</p>
+        <div class="chart" id="chart"></div>
+      </section>
+      <section class="panel">
+        <h3>Matérias estudadas no período</h3>
+        <p class="sub">Resumo por disciplina com destaque para aproveitamento abaixo de 70%.</p>
+        <div class="table-wrap" id="subjectSummary"></div>
+      </section>
+    </div>
+
+    <section class="panel anchor" id="disciplinas">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+        <div>
+          <h3>Situação das disciplinas</h3>
+          <p class="sub">Controle de consistência, desempenho e revisão. Matérias com aproveitamento abaixo de 70% ficam em evidência.</p>
+        </div>
+        <span id="warningCount" class="hint"></span>
+      </div>
+      <div class="notice">Regra da revisão: vermelho para mais de 5 dias sem estudar, amarelo para exatamente 5 dias. O percentual mostra o aproveitamento da disciplina no período filtrado.</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Disciplina</th><th>Último estudo</th><th>Dias sem estudar</th><th>Situação</th><th>Questões</th><th>Acertos</th><th>Aproveitamento</th><th>Alerta</th></tr></thead>
+          <tbody id="subjectTable"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel anchor" id="comparativo">
+      <h3>Comparativo das matérias estudadas</h3>
+      <p class="sub">Aba de comparação por desempenho, quantidade de questões e tempo de estudo, considerando o período filtrado.</p>
+      <div class="pill-tabs">
+        <button class="tabbtn active" data-tab="compare-table">Tabela comparativa</button>
+        <button class="tabbtn" data-tab="compare-bars">Ranking visual</button>
+      </div>
+      <div id="compare-table" class="tabpane active">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Matéria</th><th>Sessões</th><th>Tempo</th><th>Questões</th><th>Acertos</th><th>Aproveitamento</th><th>Último estudo</th><th>Status</th></tr></thead>
+            <tbody id="compareTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div id="compare-bars" class="tabpane">
+        <div class="split">
+          <div>
+            <h3 style="font-size:16px;margin-bottom:12px">Comparativo por questões</h3>
+            <div id="compareQuestions" class="compare-list"></div>
+          </div>
+          <div>
+            <h3 style="font-size:16px;margin-bottom:12px">Comparativo por tempo</h3>
+            <div id="compareTime" class="compare-list"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel anchor" id="gerenciar">
+      <h3>Gerenciar matérias</h3>
+      <p class="sub">Inclui ANKI por padrão. Você pode adicionar, editar e remover matérias sem perder o histórico já registrado.</p>
+      <form id="subjectForm" class="two-col">
+        <div class="control"><label>Nome da nova matéria</label><input id="newSubject" placeholder="Ex.: ANKI, Português, Raciocínio Lógico" maxlength="120" required></div>
+        <button class="btn" type="submit">+ Adicionar matéria</button>
+      </form>
+      <p id="subjectMessage" class="hint" aria-live="polite"></p>
+      <div id="subjectManager" class="manager-list"></div>
+    </section>
+
+    <section class="panel anchor" id="futuro">
+      <div style="display:flex;justify-content:space-between;gap:12px;align-items:end;flex-wrap:wrap">
+        <div>
+          <h3>Projeção futura de estudos</h3>
+          <p class="sub">A projeção considera apenas <strong>de hoje para frente</strong>, respeitando a sequência do ciclo da planilha original.</p>
+        </div>
+        <div class="control small"><label>Mostrar próximos dias</label><select id="futureDays"><option>7</option><option selected>15</option><option>30</option><option>60</option><option>90</option></select></div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Data futura</th><th>Dia da semana</th><th>Ciclo</th><th>Sessão 1</th><th>Sessão 2</th><th>Sessão 3</th><th>Sessão 4</th></tr></thead>
+          <tbody id="futureTable"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel anchor" id="lancamentos">
+      <h3>Registrar sessão de estudo</h3>
+      <p class="sub">Preencha os dados abaixo para atualizar este painel imediatamente. Os dados adicionais ficam armazenados localmente neste navegador.</p>
+      <form id="entryForm" class="form-grid">
+        <div class="control"><label>Data</label><input required type="date" id="entryDate"></div>
+        <div class="control"><label>Disciplina</label><select required id="entrySubject"></select></div>
+        <div class="control"><label>Bloco (opcional)</label><input id="entryBlock" placeholder="Ex.: II"></div>
+        <div class="control"><label>Tempo (horas e minutos)</label><input required type="text" id="entryTime" placeholder="Ex.: 01h:20 ou 00:05" inputmode="text" autocomplete="off" aria-describedby="timeHint"><span id="timeHint" class="hint">Aceita 01h, 59 min, 01h:20, 00:05 e 00:03.</span></div>
+        <div class="control"><label>Questões</label><input required type="number" min="0" step="1" id="entryQuestions" placeholder="0"></div>
+        <div class="control"><label>Acertos</label><input required type="number" min="0" step="1" id="entryCorrect" placeholder="0"></div>
+        <button class="btn" type="submit">Adicionar</button>
+      </form>
+      <p id="saveMessage" class="footer-note"></p>
+      <h3 style="margin-top:22px">Últimos registros</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Data</th><th>Disciplina</th><th>Tempo</th><th>Questões</th><th>Acertos</th><th>Origem</th><th></th></tr></thead>
+          <tbody id="records"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+const SOURCE={"subjects": ["Matemática Financeira", "Direito Constitucional", "Direito Administrativo", "Contabilidade Geral", "Direito Tributário", "Estatística", "Contabilidade Pública", "Economia", "Finanças Públicas", "Legislação Tributária Estadual", "Inteligência Artificial", "Desenvolvimento de Sistemas", "Infraestrutura de TIC e Segurança da Informação", "Reforma Tributária", "Auditoria Fiscal", "Ciência de Dados"], "entries": [{"id": 11, "date": "2026-10-30", "subject": "Economia", "questions": 15, "correct": 12, "hours": "0.04097222222222222", "block": "V"}], "cycle": [["Economia", "Reforma Tributária", "Direito Constitucional", "Inteligência Artificial"], ["Contabilidade Geral", "Legislação Tributária Estadual", "Estatística", "Direito Administrativo"], ["Reforma Tributária", "Contabilidade Pública", "Economia", "Direito Tributário"], ["Auditoria Fiscal", "Finanças Públicas", "Desenvolvimento de Sistemas", "Legislação Tributária Estadual"], ["Infraestrutura de TIC e Segurança da Informação", "Ciência de Dados", "Contabilidade Geral", "Reforma Tributária"]], "cycleStart": "2026-10-30"};
+const KEY='sefaz-al-web-dashboard-v1';
+const SUBJECT_KEY='sefaz-al-subjects-v2';
+let added=[];
+try{let v=JSON.parse(localStorage.getItem(KEY)||'[]');added=Array.isArray(v)?v:[]}catch(e){}
+let subjectData={extra:['ANKI'],renamed:{},removed:[]};
+try{let v=JSON.parse(localStorage.getItem(SUBJECT_KEY)||'null');if(v&&typeof v==='object')subjectData={extra:Array.isArray(v.extra)?v.extra:['ANKI'],renamed:v.renamed||{},removed:Array.isArray(v.removed)?v.removed:[]}}catch(e){}
+if(!subjectData.extra.some(x=>x.toLocaleLowerCase('pt-BR')==='anki')&&!SOURCE.subjects.some(x=>x.toLocaleLowerCase('pt-BR')==='anki'))subjectData.extra.push('ANKI');
+const saveSubjects=()=>localStorage.setItem(SUBJECT_KEY,JSON.stringify(subjectData));
+const resolveSubject=name=>{let a=name,seen=new Set();while(subjectData.renamed[a]&&!seen.has(a)){seen.add(a);a=subjectData.renamed[a]}return a};
+const subjects=()=>[...new Set([...SOURCE.subjects,...subjectData.extra].map(resolveSubject))].filter(x=>!subjectData.removed.includes(x)).sort((a,b)=>a.localeCompare(b,'pt-BR'));
+const all=()=>[...SOURCE.entries,...added].map(x=>({...x,subject:resolveSubject(x.subject),minutes:Number.isFinite(Number(x.minutes))&&x.minutes!==undefined?Number(x.minutes):x.custom?(Number(x.hours)||0)*60:Math.round((Number(x.hours)||0)*1440)}));
+const timeFmt=n=>{n=Math.max(0,Math.round(n));return Math.floor(n/60)+'h '+String(n%60).padStart(2,'0')+'min'};
+const dateLocal=d=>{let x=new Date(d.getFullYear(),d.getMonth(),d.getDate());return x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0')};
+const today=dateLocal(new Date());
+const addDays=(date,n)=>{let d=new Date(date+'T12:00:00');d.setDate(d.getDate()+n);return dateLocal(d)};
+const nice=(date)=>date.split('-').reverse().join('/');
+const dayname=(date)=>new Date(date+'T12:00:00').toLocaleDateString('pt-BR',{weekday:'long'});
+const sum=(arr,key)=>arr.reduce((acc,x)=>acc+(Number(x[key])||0),0);
+const esc=str=>String(str??'').replace(/[&<>\"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[c]));
+const accuracy=(q,c)=>q?100*c/q:null;
+const STATUS_CLASS={ATRASADA:'bad','REVISAR HOJE':'warn','EM DIA':'good','NÃO INICIADA':'muted'};
+const STATUS_ORDER={ATRASADA:0,'REVISAR HOJE':1,'NÃO INICIADA':2,'EM DIA':3};
+function range(period,date){let [y,m]=date.split('-').map(Number);let d=new Date(date+'T12:00:00');if(period==='day')return[date,date];if(period==='week'){let k=(d.getDay()+6)%7;return[addDays(date,-k),addDays(date,6-k)]}if(period==='month')return[date.slice(0,7)+'-01',dateLocal(new Date(y,m,0))];return[y+'-01-01',y+'-12-31']}
+function relevant(p,ref,subject){let [from,to]=range(p,ref);return all().filter(x=>x.date>=from&&x.date<=to&&(!subject||x.subject===subject))}
+function statusInfo(name){let last=all().filter(x=>x.subject===name&&x.date<=today).map(x=>x.date).sort().at(-1);let days=last?Math.round((new Date(today+'T12:00:00')-new Date(last+'T12:00:00'))/86400000):null;let state=last?(days>5?'ATRASADA':days===5?'REVISAR HOJE':'EM DIA'):'NÃO INICIADA';return {last,days,state};}
+function scoreBadge(pct){if(pct===null)return '<span class="badge muted">Sem questões</span>';if(pct<70)return '<span class="badge bad">Abaixo de 70%</span>';if(pct<85)return '<span class="badge warn">Entre 70% e 84,9%</span>';return '<span class="badge good">85% ou mais</span>';}
+function parseDuration(value){
+  const s=String(value||'').trim().toLowerCase().replace(/\s+/g,' ');
+  if(!s)return null;
+  let h=0,m=0,match;
+  // 01:20, 00:05, 01h:20, 1h20, 1h 20min
+  if((match=s.match(/^(\d+)\s*h?\s*:\s*(\d{1,2})\s*(?:min|m)?$/))) {
+    h=Number(match[1]);m=Number(match[2]);if(m>=60)return null;
+  }else if((match=s.match(/^(\d+)\s*h\s*(?:(\d{1,2})\s*(?:min|m)?)?$/))){
+    h=Number(match[1]);m=Number(match[2]||0);if(m>=60)return null;
+  }else if((match=s.match(/^(\d+)\s*(?:min|m)$/))){
+    m=Number(match[1]);
+  }else{return null;}
+  const total=h*60+m;
+  return Number.isSafeInteger(total)&&total>0?total:null;
+}
+function statusBadge(state){return `<span class="badge ${STATUS_CLASS[state]}">${state}</span>`;}
+function render(){
+  const p=document.getElementById('period').value, ref=document.getElementById('refdate').value||today, sub=document.getElementById('subjectFilter').value;
+  let r=relevant(p,ref,sub),[from,to]=range(p,ref), q=sum(r,'questions'), c=sum(r,'correct'), study=sum(r,'minutes');
+  document.getElementById('interval').value=nice(from)+' – '+nice(to);
+  document.getElementById('kStudyTime').textContent=timeFmt(study);
+  document.getElementById('kQuestions').textContent=q.toLocaleString('pt-BR');
+  document.getElementById('kCorrect').textContent=c.toLocaleString('pt-BR');
+  document.getElementById('kErrors').textContent=Math.max(0,q-c)+' erros';
+  document.getElementById('kAccuracy').textContent=q?(100*c/q).toFixed(1).replace('.',',')+'%':'—';
+  document.getElementById('kSessions').textContent=r.length;
+  document.getElementById('kSubjectCount').textContent=new Set(r.map(x=>x.subject)).size+' disciplinas no período';
+
+  let specs=[['Dia','day'],['Semana','week'],['Mês','month'],['Ano','year']];
+  document.getElementById('periodCards').innerHTML=specs.map(([label,key])=>{let a=relevant(key,ref,sub);let aq=sum(a,'questions'), ac=sum(a,'correct'), pct=accuracy(aq,ac);return `<div class="period-card"><span>${label}</span><b>${aq.toLocaleString('pt-BR')}</b><span>${a.length} sessões • ${sum(a,'correct')} acertos</span><span style="margin-top:8px">Aproveitamento: <strong>${pct!==null?pct.toFixed(1).replace('.',',')+'%':'—'}</strong></span></div>`}).join('');
+
+  let dates=Array.from({length:14},(_,i)=>addDays(today,i-13));
+  let totals=dates.map(d=>sum(all().filter(x=>x.date===d&&(!sub||x.subject===sub)),'questions'));
+  let max=Math.max(1,...totals);
+  document.getElementById('chart').innerHTML=dates.map((d,i)=>`<div class="barset" title="${nice(d)}: ${totals[i]} questões"><b>${totals[i]||''}</b><div class="bar" style="height:${Math.max(3,totals[i]/max*150)}px"></div><small>${d.slice(8)}</small></div>`).join('');
+
+  let grouped=subjects().map(name=>{let entries=r.filter(x=>x.subject===name);let q=sum(entries,'questions'), c=sum(entries,'correct');return {name,entries,q,c,minutes:sum(entries,'minutes'),pct:accuracy(q,c)}}).filter(x=>x.entries.length).sort((a,b)=>b.q-a.q||b.minutes-a.minutes||a.name.localeCompare(b.name,'pt-BR'));
+  document.getElementById('subjectSummary').innerHTML=grouped.length?`<table><thead><tr><th>Matéria</th><th>Tempo</th><th>Questões</th><th>Acertos</th><th>%</th><th>Faixa</th></tr></thead><tbody>${grouped.map(x=>`<tr class="${x.pct!==null&&x.pct<70?'low-score':''}"><td>${esc(x.name)}${x.pct!==null&&x.pct<70?'<span class="score-flag">↓ abaixo de 70%</span>':''}</td><td>${timeFmt(x.minutes)}</td><td>${x.q}</td><td>${x.c}</td><td>${x.pct!==null?x.pct.toFixed(1).replace('.',',')+'%':'—'}</td><td>${scoreBadge(x.pct)}</td></tr>`).join('')}</tbody></table>`:'<div class="summary-empty">Nenhuma matéria estudada neste período.</div>';
+
+  let warning=0;
+  let statuses=subjects().map(name=>{let s=statusInfo(name);let entries=r.filter(x=>x.subject===name);let q=sum(entries,'questions'), c=sum(entries,'correct'), pct=accuracy(q,c);if(s.state==='ATRASADA')warning++;return {name,last:s.last,days:s.days,state:s.state,q,c,pct};});
+  statuses.sort((a,b)=>(STATUS_ORDER[a.state]-STATUS_ORDER[b.state])||((b.days??0)-(a.days??0))||a.name.localeCompare(b.name,'pt-BR'));
+  document.getElementById('warningCount').textContent=`${warning} disciplina(s) atrasada(s)`;
+  document.getElementById('subjectTable').innerHTML=statuses.map(x=>`<tr class="${x.pct!==null&&x.pct<70?'low-score':''}"><td>${esc(x.name)}${x.pct!==null&&x.pct<70?'<span class="score-flag">↓</span>':''}</td><td>${x.last?nice(x.last):'—'}</td><td>${x.days??'—'}</td><td>${statusBadge(x.state)}</td><td>${x.q}</td><td>${x.c}</td><td>${x.pct!==null?x.pct.toFixed(1).replace('.',',')+'%':'—'}</td><td>${scoreBadge(x.pct)}</td></tr>`).join('');
+
+  renderComparative(grouped);
+  renderFuture();
+  renderRecords();
+}
+function renderComparative(grouped){
+  const body=document.getElementById('compareTableBody');
+  if(!grouped.length){body.innerHTML='<tr><td colspan="8" class="summary-empty">Nenhuma matéria estudada no período selecionado.</td></tr>';document.getElementById('compareQuestions').innerHTML='<div class="summary-empty">Sem dados no período.</div>';document.getElementById('compareTime').innerHTML='<div class="summary-empty">Sem dados no período.</div>';return;}
+  body.innerHTML=grouped.map(x=>{let s=statusInfo(x.name);return `<tr class="${x.pct!==null&&x.pct<70?'low-score':''}"><td>${esc(x.name)}</td><td>${x.entries.length}</td><td>${timeFmt(x.minutes)}</td><td>${x.q}</td><td>${x.c}</td><td>${x.pct!==null?x.pct.toFixed(1).replace('.',',')+'%':'—'}</td><td>${s.last?nice(s.last):'—'}</td><td>${scoreBadge(x.pct)}</td></tr>`}).join('');
+  let maxQ=Math.max(1,...grouped.map(x=>x.q)), maxT=Math.max(1,...grouped.map(x=>x.minutes));
+  document.getElementById('compareQuestions').innerHTML=grouped.map(x=>`<div class="compare-item"><div class="compare-head"><strong>${esc(x.name)}</strong>${scoreBadge(x.pct)}</div><div class="track"><div class="fill ${x.pct!==null&&x.pct<70?'bad':''}" style="width:${(x.q/maxQ*100).toFixed(1)}%"></div></div><div class="meta-inline"><span><strong>${x.q}</strong> questões</span><span><strong>${x.c}</strong> acertos</span><span><strong>${x.pct!==null?x.pct.toFixed(1).replace('.',',')+'%':'—'}</strong> de aproveitamento</span></div></div>`).join('');
+  document.getElementById('compareTime').innerHTML=[...grouped].sort((a,b)=>b.minutes-a.minutes).map(x=>`<div class="compare-item"><div class="compare-head"><strong>${esc(x.name)}</strong><span class="badge muted">${timeFmt(x.minutes)}</span></div><div class="track"><div class="fill time" style="width:${(x.minutes/maxT*100).toFixed(1)}%"></div></div><div class="meta-inline"><span><strong>${x.entries.length}</strong> sessões</span><span><strong>${timeFmt(x.minutes)}</strong> estudados</span><span><strong>${x.q}</strong> questões</span></div></div>`).join('');
+}
+function renderFuture(){let count=Number(document.getElementById('futureDays').value), start=new Date(SOURCE.cycleStart+'T12:00:00');document.getElementById('futureTable').innerHTML=Array.from({length:count},(_,i)=>{let day=addDays(today,i);let days=Math.round((new Date(day+'T12:00:00')-start)/86400000);let idx=((days%5)+5)%5;return `<tr><td>${nice(day)}</td><td>${dayname(day)}</td><td>${idx+1}/5</td>${SOURCE.cycle[idx].map(v=>`<td>${subjectData.removed.includes(resolveSubject(v))?'—':esc(resolveSubject(v))}</td>`).join('')}</tr>`}).join('')}
+function renderRecords(){let rows=all().sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id).slice(0,30);document.getElementById('records').innerHTML=rows.map(x=>`<tr><td>${nice(x.date)}</td><td>${esc(x.subject)}</td><td>${timeFmt(x.minutes)}</td><td>${x.questions}</td><td>${x.correct}</td><td>${x.custom?'Local':'Excel'}</td><td>${x.custom?`<button class="btn alt" style="padding:6px 10px" onclick="removeEntry(${x.id})">Excluir</button>`:''}</td></tr>`).join('')}
+function removeEntry(id){added=added.filter(x=>x.id!==id);localStorage.setItem(KEY,JSON.stringify(added));render()}
+function resetFilters(){document.getElementById('period').value='week';document.getElementById('refdate').value=today;document.getElementById('subjectFilter').value='';render()}
+function exportCsv(){let header=['Data','Disciplina','Bloco','Minutos de estudo','Horas de estudo','Questões','Acertos','Origem'];let rows=all().map(x=>[x.date,x.subject,x.block||'',x.minutes,(x.minutes/60).toFixed(2).replace('.',','),x.questions,x.correct,x.custom?'Web':'Excel']);let csv='\ufeff'+[header,...rows].map(row=>row.map(v=>'"'+String(v??'').replaceAll('"','""')+'"').join(';')).join('\r\n');let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='SEFAZ_AL_registros.csv';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+function refreshSubjectSelects(){const filter=document.getElementById('subjectFilter'),entry=document.getElementById('entrySubject');let selectedFilter=filter.value,selectedEntry=entry.value;filter.innerHTML='<option value="">Todas as disciplinas</option>';entry.innerHTML='';for(let name of subjects()){filter.add(new Option(name,name));entry.add(new Option(name,name))}filter.value=subjects().includes(selectedFilter)?selectedFilter:'';entry.value=subjects().includes(selectedEntry)?selectedEntry:(subjects()[0]||'')}
+function renderSubjectManager(){document.getElementById('subjectManager').innerHTML=subjects().map(name=>`<div class="subject-item"><strong>${esc(name)}</strong><div class="subject-actions"><button class="btn alt" type="button" data-subaction="rename" data-name="${esc(name)}">Editar nome</button><button class="btn bad" type="button" data-subaction="remove" data-name="${esc(name)}">Remover</button></div></div>`).join('')}
+function subjectChangeMessage(message){document.getElementById('subjectMessage').textContent=message}
+function updateSubjects(){saveSubjects();refreshSubjectSelects();renderSubjectManager();render()}
+document.getElementById('subjectForm').addEventListener('submit',e=>{e.preventDefault();const name=document.getElementById('newSubject').value.trim().replace(/\s+/g,' ');if(!name)return;if(subjects().some(s=>s.toLocaleLowerCase('pt-BR')===name.toLocaleLowerCase('pt-BR'))){subjectChangeMessage('Essa matéria já existe.');return}subjectData.removed=subjectData.removed.filter(x=>x!==name);subjectData.extra.push(name);document.getElementById('newSubject').value='';subjectChangeMessage('Matéria adicionada: '+name);updateSubjects()});
+document.getElementById('subjectManager').addEventListener('click',e=>{let b=e.target.closest('[data-subaction]');if(!b)return;let name=b.dataset.name;if(b.dataset.subaction==='rename'){let next=prompt('Novo nome da matéria:',name);if(next===null)return;next=next.trim().replace(/\s+/g,' ');if(!next||next===name)return;if(subjects().some(s=>s!==name&&s.toLocaleLowerCase('pt-BR')===next.toLocaleLowerCase('pt-BR'))){subjectChangeMessage('Já existe outra matéria com esse nome.');return}subjectData.renamed[name]=next;subjectData.removed=subjectData.removed.filter(x=>x!==next);subjectChangeMessage('Matéria renomeada e histórico preservado.');updateSubjects()}else{if(!confirm('Remover "'+name+'" da lista ativa? Os registros históricos serão mantidos.'))return;subjectData.removed.push(name);subjectChangeMessage('Matéria removida da lista ativa; histórico preservado.');updateSubjects()}});
+['period','refdate','subjectFilter','futureDays'].forEach(id=>document.getElementById(id).addEventListener('change',render));
+document.querySelectorAll('.tabbtn').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.tabbtn').forEach(b=>b.classList.remove('active'));document.querySelectorAll('.tabpane').forEach(p=>p.classList.remove('active'));btn.classList.add('active');document.getElementById(btn.dataset.tab).classList.add('active');}));
+document.getElementById('entryForm').addEventListener('submit',e=>{e.preventDefault();let qs=Number(document.getElementById('entryQuestions').value),c=Number(document.getElementById('entryCorrect').value),minutes=parseDuration(document.getElementById('entryTime').value);if(!Number.isInteger(qs)||!Number.isInteger(c)||qs<0||c<0||c>qs||minutes===null){document.getElementById('saveMessage').textContent='Confira os dados. Tempo válido: 01h, 59 min, 01h:20 ou 00:05. Acertos não podem superar questões.';return}added.push({id:Date.now(),date:document.getElementById('entryDate').value,subject:document.getElementById('entrySubject').value,block:document.getElementById('entryBlock').value,questions:qs,correct:c,minutes,custom:true});localStorage.setItem(KEY,JSON.stringify(added));document.getElementById('saveMessage').textContent='Sessão salva: '+timeFmt(minutes)+'. Use Exportar registros para fazer backup.';document.getElementById('entryQuestions').value='';document.getElementById('entryCorrect').value='';document.getElementById('entryTime').value='';render()});
+function markNav(){document.querySelectorAll('.nav a').forEach(a=>{a.addEventListener('click',()=>{document.querySelectorAll('.nav a').forEach(x=>x.classList.remove('active'));a.classList.add('active')})})}
+document.getElementById('clock').textContent=new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'});
+document.getElementById('clockMobile').textContent=new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'short'});
+document.getElementById('refdate').value=today;document.getElementById('entryDate').value=today;
+refreshSubjectSelects();renderSubjectManager();markNav();render();
+</script>
+</body>
+</html>
